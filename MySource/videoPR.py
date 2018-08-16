@@ -62,7 +62,7 @@ def newFrame():
     global rgb_Frame
     global small_Frame
     
-    start_Frame = cv2.imread("people.jpg") #video_stream.read()
+    start_Frame = cv2.imread("./MySource/people.jpg") #video_stream.read()
     #resize to speed up face idetification
     small_Frame = cv2.resize(start_Frame, (0,0), fx=.25, fy=.25)
     #recolor
@@ -84,27 +84,31 @@ def friendEnemyOther():
     global enemies_names
     global user_name
     global user_pic
-
+    
     prossessFrame()
     face_Stat_Name = []
+    friend_Matchs = []
+    enemy_Matchs = []
 
     for face in face_encoding:
-        face2 = face
-        face3 = face
         match = face_recognition.compare_faces(user_pic, face)
         if True in match: #user is 2
             person = (2, user_name)
         else:        
             #look though known faces
-            friend_Matchs = face_recognition.compare_faces(friends, face2)
-            enemy_Matchs = face_recognition.compare_faces(enemies, face3)
+            for friendFace in friends:
+                friend_Matchs.append(face_recognition.compare_faces(friendFace, face, .4))
+            print(str(friend_Matchs))
+            for enemyFace in enemies:
+                enemy_Matchs.append(face_recognition.compare_faces(enemyFace, face, .4))
         
-            
-            if True in friend_Matchs:
-                    index = friend_Matchs.index(True)
-                    person = (1, friend_names[index])
-            elif True in enemy_Matchs:
-                index = enemy_Matchs.index(True)
+            #print("frineds " + str(friend_Matchs))
+            #print("Enemies" + str(enemy_Matchs))
+            if [True] in friend_Matchs:
+                index = friend_Matchs.index([True])
+                person = (1, friend_names[index])
+            elif [True] in enemy_Matchs:
+                index = enemy_Matchs.index([True])
                 person = (-1, enemies_names[index])
             else:
                 person = (0, "Unknown")
@@ -156,20 +160,19 @@ def populate():
     global enemies
     global enemies_names
     
-    user_dir = os.listdir("./user/")
-    friend_dir = os.listdir("./friend/")
-    enemy_dir = os.listdir("./enemy")
-
+    user_dir = os.listdir("./MySource/user/")
+    friend_dir = os.listdir("./MySource/friend/")
+    enemy_dir = os.listdir("./MySource/enemy/")
     for pic in user_dir:
-        pic2 = face_recognition.load_image_file(str("./user/") + str(pic))
+        pic2 = face_recognition.load_image_file(str("./MySource/user/") + str(pic))
         user_pic = face_recognition.face_encodings(pic2)
         user_name = str(pic)
     for pic in friend_dir:
-        pic2 = face_recognition.load_image_file(str("./friend/") + str(pic))
+        pic2 = face_recognition.load_image_file(str("./MySource/friend/") + str(pic))
         friends.append(face_recognition.face_encodings(pic2))
         friend_names.append(str(pic))
     for pic in enemy_dir:
-        pic2 = face_recognition.load_image_file(str("./enemy/") + str(pic))
+        pic2 = face_recognition.load_image_file(str("./MySource/enemy/") + str(pic))
         enemies.append(face_recognition.face_encodings(pic2))
         enemies_names.append(str(pic))
 
